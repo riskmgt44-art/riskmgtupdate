@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roles • RiskMGT Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary: #5DA1A1;
+            --primary-hover: #4e9393;
+            --green: #10b981;
+            --amber: #f59e0b;
+            --red: #ef4444;
+            --neutral: #6b7280;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #e8e8e8;
+            --shadow-sm: 0 3.2px 9.6px rgba(0,0,0,0.06);
+            --radius: 12.8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            padding: 32px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+
+        .table-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .search-input {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 300px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 9px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .roles-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .roles-table thead {
+            background: rgba(93,161,161,0.05);
+        }
+
+        .roles-table th {
+            text-align: left;
+            padding: 16px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--neutral);
+        }
+
+        .roles-table td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .role-permissions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .perm-pill {
+            padding: 4px 10px;
+            background: rgba(93,161,161,0.1);
+            color: var(--primary);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .table-actions-cell {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-link {
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+
+        .action-link.danger {
+            color: var(--red);
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .search-input { width: 100%; }
+            .table-actions { flex-direction: column; align-items: stretch; }
+            .roles-table th, .roles-table td { padding: 12px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+    <h2 class="section-title">Roles Management</h2>
+
+    <div class="table-actions">
+        <input type="text" class="search-input" placeholder="Search roles...">
+        <button class="btn btn-primary"><i class="fas fa-plus"></i> Create New Role</button>
+    </div>
+
+    <table class="roles-table">
+        <thead>
+            <tr>
+                <th>Role Name</th>
+                <th>Description</th>
+                <th>Users Assigned</th>
+                <th>Key Permissions</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Administrator</strong></td>
+                <td>Full system access and configuration rights</td>
+                <td>3</td>
+                <td class="role-permissions">
+                    <span class="perm-pill">All Modules</span>
+                    <span class="perm-pill">Delete</span>
+                    <span class="perm-pill">Config</span>
+                </td>
+                <td class="table-actions-cell">
+                    <span class="action-link">View</span>
+                    <span class="action-link">Edit</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Risk Manager</strong></td>
+                <td>Manage risks, actions, and approvals</td>
+                <td>12</td>
+                <td class="role-permissions">
+                    <span class="perm-pill">Risks</span>
+                    <span class="perm-pill">Actions</span>
+                    <span class="perm-pill">Approve</span>
+                </td>
+                <td class="table-actions-cell">
+                    <span class="action-link">View</span>
+                    <span class="action-link">Edit</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Compliance Officer</strong></td>
+                <td>View audit trails and ensure regulatory compliance</td>
+                <td>5</td>
+                <td class="role-permissions">
+                    <span class="perm-pill">Audit Trail</span>
+                    <span class="perm-pill">History</span>
+                    <span class="perm-pill">Reports</span>
+                </td>
+                <td class="table-actions-cell">
+                    <span class="action-link">View</span>
+                    <span class="action-link">Edit</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Risk Owner</strong></td>
+                <td>Own and update assigned risks and actions</td>
+                <td>28</td>
+                <td class="role-permissions">
+                    <span class="perm-pill">My Risks</span>
+                    <span class="perm-pill">My Actions</span>
+                    <span class="perm-pill">Edit Own</span>
+                </td>
+                <td class="table-actions-cell">
+                    <span class="action-link">View</span>
+                    <span class="action-link">Edit</span>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Executive</strong></td>
+                <td>Read-only access to dashboards and reports</td>
+                <td>8</td>
+                <td class="role-permissions">
+                    <span class="perm-pill">View Dashboards</span>
+                    <span class="perm-pill">Reports</span>
+                </td>
+                <td class="table-actions-cell">
+                    <span class="action-link">View</span>
+                    <span class="action-link">Edit</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

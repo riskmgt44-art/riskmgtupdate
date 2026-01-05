@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Overview • RiskMGT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary: #5DA1A1;
+            --primary-hover: #4e9393;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #e8e8e8;
+            --shadow-sm: 0 3.2px 9.6px rgba(0,0,0,0.06);
+            --shadow-md: 0 9.6px 25.6px rgba(0,0,0,0.08);
+            --shadow-lg: 0 19.2px 38.4px rgba(0,0,0,0.12);
+            --radius: 12.8px;
+            --transition: all 0.3s ease;
+            --shimmer-bg: #f6f7f8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            display: grid;
+            grid-template-columns: 224px 1fr;
+            grid-template-rows: auto 1fr;
+        }
+        /* Shimmer */
+        .shimmer { position: relative; overflow: hidden; background: var(--shimmer-bg); border-radius: var(--radius); }
+        .shimmer::before {
+            content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+            animation: shimmer 2s infinite linear; transform: skewX(-20deg);
+        }
+        @keyframes shimmer { 0% { left: -150%; } 100% { left: 150%; } }
+        .shimmer-text { height: 16px; background: var(--shimmer-bg); border-radius: 8px; }
+        .shimmer-text.short { width: 60%; } .shimmer-text.medium { width: 80%; } .shimmer-text.long { width: 100%; }
+        .shimmer-circle { width: 38.4px; height: 38.4px; background: var(--shimmer-bg); border-radius: 50%; }
+        .shimmer-btn { height: 32px; width: 100px; background: var(--shimmer-bg); border-radius: 9.6px; }
+        .shimmer-title { height: 24px; width: 260px; background: var(--shimmer-bg); border-radius: 8px; margin-bottom: 20px; }
+        .loading .real-content { display: none; }
+        body:not(.loading) .shimmer { display: none !important; }
+
+        /* Sidebar */
+        .sidebar {
+            grid-row: 1 / -1;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0;
+            width: 224px; z-index: 10;
+        }
+        .sidebar-header { padding: 25.6px 19.2px; }
+        .logo { display: flex; align-items: center; gap: 9.6px; font-size: 16px; font-weight: 700; color: var(--text-primary); }
+        .logo-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 9.6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; }
+        .nav { flex: 1; padding: 19.2px 0; }
+        .nav-item { display: flex; align-items: center; gap: 12.8px; padding: 9.6px 19.2px; color: var(--text-secondary); transition: var(--transition); cursor: pointer; }
+        .nav-item:hover { background: rgba(93,161,161,0.06); color: var(--primary); }
+        .nav-item.active { background: rgba(93,161,161,0.1); color: var(--primary); font-weight: 600; border-left: 3.2px solid var(--primary); padding-left: 16px; }
+        .nav-item i { width: 16px; height: 16px; font-size: 16px; flex-shrink: 0; }
+        .sidebar-footer { padding: 19.2px; }
+        .user-info { display: flex; align-items: center; gap: 9.6px; margin-bottom: 12.8px; }
+        .avatar { width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; font-size: 12px; }
+        .user-role { font-size: 10.4px; color: var(--primary); background: rgba(93,161,161,0.15); padding: 1.6px 6.4px; border-radius: 6.4px; display: inline-block; margin-top: 3.2px; }
+        .logout { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 11.2px; cursor: pointer; transition: var(--transition); padding: 8px 12.8px; border-radius: 8px; }
+        .logout:hover { background: rgba(239,68,68,0.08); color: var(--red); }
+
+        /* Header - only visible for Overview */
+        .header {
+            grid-column: 2 / -1;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 9;
+        }
+        .page-title { font-size: 19.2px; font-weight: 600; }
+        .header-actions { display: flex; align-items: center; gap: 19.2px; }
+        .search-box input {
+            padding: 8px 12.8px;
+            border: 1px solid var(--border);
+            border-radius: 9.6px;
+            width: 240px;
+            font-size: 12px;
+            background: #f9f9f9;
+        }
+        .notifications { position: relative; cursor: pointer; }
+        .notification-badge {
+            position: absolute;
+            top: -4.8px;
+            right: -4.8px;
+            background: var(--red);
+            color: white;
+            font-size: 8.8px;
+            width: 14.4px;
+            height: 14.4px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main {
+            grid-column: 2 / -1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #content-frame {
+            position: absolute;
+            top: 0;
+            left: 224px;
+            width: calc(100% - 224px);
+            height: 100%;
+            border: none;
+            display: none;
+            z-index: 5;
+        }
+        #overview-content {
+            padding: 32px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(192px, 1fr)); gap: 19.2px; margin-bottom: 38.4px; }
+        .kpi-card { background: var(--card-bg); border-radius: var(--radius); padding: 19.2px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); text-align: center; }
+        .kpi-value { font-size: 28.8px; font-weight: 700; margin-bottom: 6.4px; }
+        .kpi-value.total { color: var(--text-primary); }
+        .kpi-value.high { color: var(--red); }
+        .kpi-value.open { color: var(--primary); }
+        .kpi-value.overdue { color: var(--amber); }
+        .kpi-value.pending { color: var(--red); }
+        .kpi-value.active { color: var(--green); }
+        .kpi-label { font-size: 12px; color: var(--text-secondary); }
+
+        /* Dashboard Access */
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(256px, 1fr)); gap: 19.2px; margin-bottom: 38.4px; }
+        .dashboard-card { background: var(--card-bg); border-radius: var(--radius); padding: 22.4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); display: flex; flex-direction: column; }
+        .dashboard-icon { width: 38.4px; height: 38.4px; background: rgba(93,161,161,0.15); border-radius: 9.6px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; color: var(--primary); }
+        .dashboard-icon i { font-size: 20px; }
+        .dashboard-title { font-size: 14.4px; font-weight: 600; margin-bottom: 6.4px; }
+        .dashboard-desc { color: var(--text-secondary); margin-bottom: 19.2px; flex: 1; font-size: 12px; }
+        .btn-view { align-self: flex-start; padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 9.6px; font-size: 11.2px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .btn-view:hover { background: var(--primary-hover); }
+
+        /* Approval & Governance */
+        .split-section { display: grid; grid-template-columns: 2fr 1fr; gap: 25.6px; margin-bottom: 38.4px; }
+        .approvals-panel { background: var(--card-bg); border-radius: var(--radius); padding: 22.4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .approval-item { display: flex; align-items: center; justify-content: space-between; padding: 12.8px 0; border-bottom: 1px solid var(--border); }
+        .approval-item:last-child { border-bottom: none; }
+        .approval-details { flex: 1; }
+        .approval-title { font-weight: 600; font-size: 13px; margin-bottom: 3.2px; }
+        .approval-meta { font-size: 10.4px; color: var(--text-muted); }
+        .btn-review { padding: 6.4px 12.8px; background: transparent; border: 1px solid var(--primary); color: var(--primary); border-radius: 8px; font-size: 10.4px; cursor: pointer; }
+        .governance-panel { background: var(--card-bg); border-radius: var(--radius); padding: 22.4px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .governance-item { display: flex; justify-content: space-between; padding: 9.6px 0; font-size: 11.2px; }
+        .governance-item:not(:last-child) { border-bottom: 1px solid var(--border); }
+
+        /* Admin Shortcuts */
+        .admin-section { background: rgba(93,161,161,0.06); border-radius: var(--radius); padding: 25.6px; border: 1px solid rgba(93,161,161,0.2); }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(176px, 1fr)); gap: 16px; }
+        .admin-card { text-align: center; padding: 16px; background: white; border-radius: 11.2px; box-shadow: var(--shadow-sm); cursor: pointer; transition: var(--transition); }
+        .admin-card:hover { transform: translateY(-3.2px); box-shadow: var(--shadow-md); }
+        .admin-icon { width: 35.2px; height: 35.2px; background: rgba(93,161,161,0.15); border-radius: 9.6px; margin: 0 auto 12.8px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+        .admin-icon i { font-size: 18px; }
+        .admin-title { font-weight: 600; font-size: 13px; margin-bottom: 3.2px; }
+        .admin-desc { font-size: 10.4px; color: var(--text-muted); }
+
+        /* Logout Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(4px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: white; border-radius: var(--radius); width: 380px; max-width: 90vw;
+            box-shadow: var(--shadow-lg); overflow: hidden;
+        }
+        .modal-header { padding: 22.4px 22.4px 0; text-align: center; }
+        .modal-icon { width: 64px; height: 64px; background: rgba(239,68,68,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: var(--red); }
+        .modal-icon i { font-size: 32px; }
+        .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .modal-body { padding: 0 22.4px 22.4px; text-align: center; color: var(--text-secondary); font-size: 14px; }
+        .modal-actions { display: flex; gap: 12.8px; margin-top: 22.4px; }
+        .btn-cancel { flex: 1; padding: 12.8px; background: #f3f4f6; color: var(--text-primary); border: none; border-radius: 9.6px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .btn-cancel:hover { background: #e5e7eb; }
+        .btn-confirm { flex: 1; padding: 12.8px; background: var(--red); color: white; border: none; border-radius: 9.6px; font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .btn-confirm:hover { background: #dc2626; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            body { grid-template-columns: 1fr; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .header, .main { grid-column: 1 / -1; }
+            #content-frame { left: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="loading">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon">R</div>
+                <span>RiskMGT</span>
+            </div>
+        </div>
+        <nav class="nav">
+            <div class="nav-item active" data-target="overview">
+                <i class="fas fa-tachometer-alt"></i>
+                Overview
+            </div>
+            <div class="nav-item" data-target="global-risk-register/list.html">
+                <i class="fas fa-exclamation-triangle"></i>
+                Global Risk Register
+            </div>
+            <div class="nav-item" data-target="global-actions/list.html">
+                <i class="fas fa-tasks"></i>
+                Global Actions
+            </div>
+            <div class="nav-item" data-target="approvals.html">
+                <i class="fas fa-check-circle"></i>
+                Approvals
+            </div>
+            <div class="nav-item" data-target="delete-requests.html">
+                <i class="fas fa-trash-alt"></i>
+                Delete Requests
+            </div>
+            <div class="nav-item" data-target="dashboards/enterprise-overview.html">
+                <i class="fas fa-chart-bar"></i>
+                Dashboards
+            </div>
+            <div class="nav-item" data-target="audit-trail.html">
+                <i class="fas fa-history"></i>
+                Audit Trail
+            </div>
+            <div class="nav-item" data-target="user-activity.html">
+                <i class="fas fa-user-clock"></i>
+                User Activity
+            </div>
+            <div class="nav-item" data-target="admin/users.html">
+                <i class="fas fa-cog"></i>
+                Admin
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">Jane Doe</div>
+                    <div class="user-role">Executive</div>
+                </div>
+            </div>
+            <div class="logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </div>
+        </div>
+    </aside>
+
+    <!-- Header - only visible for Overview -->
+    <header class="header" id="overviewHeader">
+        <h1 class="page-title" id="pageTitle">Executive Overview • RiskMGT</h1>
+        <div class="header-actions">
+            <div class="search-box">
+                <input type="text" placeholder="Search risks, actions, users...">
+            </div>
+            <div class="notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notification-badge">8</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- iframe now uses absolute positioning to cover full area (no shrinking) -->
+        <iframe id="content-frame" src="" scrolling="no"></iframe>
+
+        <!-- Overview content -->
+        <div id="overview-content">
+            <!-- KPI Summary -->
+            <div class="kpi-grid">
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+                <div class="kpi-card shimmer">
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-text short"></div>
+                </div>
+
+                <div class="real-content kpi-card">
+                    <div class="kpi-value total">142</div>
+                    <div class="kpi-label">Total Risks</div>
+                </div>
+                <div class="real-content kpi-card">
+                    <div class="kpi-value high">18</div>
+                    <div class="kpi-label">High-Severity Risks</div>
+                </div>
+                <div class="real-content kpi-card">
+                    <div class="kpi-value open">87</div>
+                    <div class="kpi-label">Open Actions</div>
+                </div>
+                <div class="real-content kpi-card">
+                    <div class="kpi-value overdue">9</div>
+                    <div class="kpi-label">Overdue Actions</div>
+                </div>
+                <div class="real-content kpi-card">
+                    <div class="kpi-value pending">8</div>
+                    <div class="kpi-label">Pending Approvals</div>
+                </div>
+                <div class="real-content kpi-card">
+                    <div class="kpi-value active">46</div>
+                    <div class="kpi-label">Active Users</div>
+                </div>
+            </div>
+
+            <!-- Enterprise Dashboards -->
+            <div class="shimmer-title"></div>
+            <h2 class="section-title real-content">Enterprise Dashboards</h2>
+
+            <div class="dashboard-grid">
+                <div class="dashboard-card shimmer">
+                    <div class="shimmer-circle"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-btn"></div>
+                </div>
+                <div class="dashboard-card shimmer">
+                    <div class="shimmer-circle"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-btn"></div>
+                </div>
+                <div class="dashboard-card shimmer">
+                    <div class="shimmer-circle"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text long"></div>
+                    <div class="shimmer-text medium"></div>
+                    <div class="shimmer-btn"></div>
+                </div>
+
+                <div class="real-content dashboard-card">
+                    <div class="dashboard-icon"><i class="fas fa-th-large"></i></div>
+                    <div class="dashboard-title">Enterprise Risk Overview</div>
+                    <div class="dashboard-desc">Comprehensive view of all risks across the organization with severity distribution and trends.</div>
+                    <button class="btn-view" onclick="loadIframePage('dashboards/enterprise-overview.html')">View Dashboard</button>
+                </div>
+                <div class="real-content dashboard-card">
+                    <div class="dashboard-icon"><i class="fas fa-map"></i></div>
+                    <div class="dashboard-title">Enterprise Heatmap</div>
+                    <div class="dashboard-desc">Visual representation of risk concentration by department, location, and category.</div>
+                    <button class="btn-view" onclick="loadIframePage('dashboards/enterprise-heatmap.html')">View Dashboard</button>
+                </div>
+                <div class="real-content dashboard-card">
+                    <div class="dashboard-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="dashboard-title">Trend Analysis</div>
+                    <div class="dashboard-desc">Historical risk trends, mitigation effectiveness, and emerging risk patterns over time.</div>
+                    <button class="btn-view" onclick="loadIframePage('dashboards/enterprise-trends.html')">View Dashboard</button>
+                </div>
+            </div>
+
+            <!-- Approval & Governance -->
+            <div class="shimmer-title"></div>
+            <h2 class="section-title real-content">Approvals & Governance</h2>
+
+            <div class="split-section">
+                <div class="approvals-panel shimmer">
+                    <div class="shimmer-text medium" style="margin-bottom:20px;"></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12.8px 0;border-bottom:1px solid var(--border);">
+                        <div style="flex:1;">
+                            <div class="shimmer-text long"></div>
+                            <div class="shimmer-text short"></div>
+                        </div>
+                        <div class="shimmer-btn" style="width:80px;"></div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12.8px 0;border-bottom:1px solid var(--border);">
+                        <div style="flex:1;">
+                            <div class="shimmer-text long"></div>
+                            <div class="shimmer-text short"></div>
+                        </div>
+                        <div class="shimmer-btn" style="width:80px;"></div>
+                    </div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12.8px 0;">
+                        <div style="flex:1;">
+                            <div class="shimmer-text long"></div>
+                            <div class="shimmer-text short"></div>
+                        </div>
+                        <div class="shimmer-btn" style="width:80px;"></div>
+                    </div>
+                </div>
+
+                <div class="real-content approvals-panel">
+                    <h3 style="margin-bottom:16px;font-size:14.4px;font-weight:600;">Pending Approvals</h3>
+                    <div class="approval-item">
+                        <div class="approval-details">
+                            <div class="approval-title">New Cyber Risk Submission</div>
+                            <div class="approval-meta">Risk • Requested by Alex Chen • 2 days ago</div>
+                        </div>
+                        <button class="btn-review">Review</button>
+                    </div>
+                    <div class="approval-item">
+                        <div class="approval-details">
+                            <div class="approval-title">Vendor Contract Renewal</div>
+                            <div class="approval-meta">Action • Requested by Maria Garcia • 1 day ago</div>
+                        </div>
+                        <button class="btn-review">Review</button>
+                    </div>
+                    <div class="approval-item">
+                        <div class="approval-details">
+                            <div class="approval-title">Delete Request: Obsolete Policy</div>
+                            <div class="approval-meta">Delete • Requested by System Admin • 3 hours ago</div>
+                        </div>
+                        <button class="btn-review">Review</button>
+                    </div>
+                </div>
+
+                <div class="governance-panel shimmer">
+                    <div class="shimmer-text medium" style="margin-bottom:20px;"></div>
+                    <div style="display:flex;justify-content:space-between;padding:9.6px 0;">
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short" style="width:40px;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:9.6px 0;border-bottom:1px solid var(--border);">
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short" style="width:40px;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:9.6px 0;border-bottom:1px solid var(--border);">
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short" style="width:40px;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:9.6px 0;">
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short" style="width:80px;"></div>
+                    </div>
+                </div>
+
+                <div class="real-content governance-panel">
+                    <h3 style="margin-bottom:16px;font-size:14.4px;font-weight:600;">Governance Snapshot</h3>
+                    <div class="governance-item">
+                        <span>Audit Trail Entries (24h)</span>
+                        <strong>142</strong>
+                    </div>
+                    <div class="governance-item">
+                        <span>Recent Role Changes</span>
+                        <strong>3</strong>
+                    </div>
+                    <div class="governance-item">
+                        <span>Policy Updates (30d)</span>
+                        <strong>7</strong>
+                    </div>
+                    <div class="governance-item">
+                        <span>System Health</span>
+                        <strong style="color:#10b981;">Healthy</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Shortcuts -->
+            <div class="admin-section">
+                <div class="shimmer-title" style="width:180px;"></div>
+                <h2 class="section-title real-content" style="color:var(--primary);margin-bottom:19.2px;">Administration</h2>
+
+                <div class="admin-grid">
+                    <div class="admin-card shimmer">
+                        <div class="shimmer-circle" style="width:35.2px;height:35.2px;margin:0 auto 12.8px;"></div>
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short"></div>
+                    </div>
+                    <div class="admin-card shimmer">
+                        <div class="shimmer-circle" style="width:35.2px;height:35.2px;margin:0 auto 12.8px;"></div>
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short"></div>
+                    </div>
+                    <div class="admin-card shimmer">
+                        <div class="shimmer-circle" style="width:35.2px;height:35.2px;margin:0 auto 12.8px;"></div>
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short"></div>
+                    </div>
+                    <div class="admin-card shimmer">
+                        <div class="shimmer-circle" style="width:35.2px;height:35.2px;margin:0 auto 12.8px;"></div>
+                        <div class="shimmer-text medium"></div>
+                        <div class="shimmer-text short"></div>
+                    </div>
+
+                    <div class="real-content admin-card" onclick="loadIframePage('admin/users.html')">
+                        <div class="admin-icon"><i class="fas fa-users"></i></div>
+                        <div class="admin-title">User Management</div>
+                        <div class="admin-desc">Add, edit, or deactivate users</div>
+                    </div>
+                    <div class="real-content admin-card" onclick="loadIframePage('admin/roles.html')">
+                        <div class="admin-icon"><i class="fas fa-user-shield"></i></div>
+                        <div class="admin-title">Role Management</div>
+                        <div class="admin-desc">Define and assign roles</div>
+                    </div>
+                    <div class="real-content admin-card" onclick="loadIframePage('admin/permissions.html')">
+                        <div class="admin-icon"><i class="fas fa-key"></i></div>
+                        <div class="admin-title">Permissions</div>
+                        <div class="admin-desc">Fine-grained access control</div>
+                    </div>
+                    <div class="real-content admin-card" onclick="loadIframePage('admin/system-settings.html')">
+                        <div class="admin-icon"><i class="fas fa-cogs"></i></div>
+                        <div class="admin-title">System Settings</div>
+                        <div class="admin-desc">Global configuration & policies</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay" id="logoutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <div class="modal-title">Confirm Logout</div>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to log out of your account?
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelLogout">Cancel</button>
+                <button class="btn-confirm" id="confirmLogout">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toast function
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <svg class="toast-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    ${type === 'success' 
+                        ? '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>'
+                        : '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>'
+                    }
+                </svg>
+                <div class="toast-message">${message}</div>
+                <div class="toast-close" onclick="this.parentElement.classList.remove('show'); setTimeout(() => this.parentElement.remove(), 400);">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </div>
+            `;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 5000);
+        }
+
+        // Logout modal
+        const logoutBtn = document.getElementById('logoutBtn');
+        const modal = document.getElementById('logoutModal');
+        const cancelBtn = document.getElementById('cancelLogout');
+        const confirmBtn = document.getElementById('confirmLogout');
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modal.classList.add('open');
+        });
+        cancelBtn.addEventListener('click', () => modal.classList.remove('open'));
+        confirmBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+            showToast('You have been logged out successfully.', 'success');
+            setTimeout(() => { window.location.href = '../../auth/login.html'; }, 1000);
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('open');
+        });
+
+        // Elements
+        const iframe = document.getElementById('content-frame');
+        const overviewContent = document.getElementById('overview-content');
+        const overviewHeader = document.getElementById('overviewHeader');
+        const pageTitle = document.getElementById('pageTitle');
+        const navItems = document.querySelectorAll('.nav-item');
+
+        // Load page into iframe
+        function loadIframePage(target) {
+            iframe.src = target;
+            iframe.style.display = 'block';
+            overviewContent.style.display = 'none';
+            overviewHeader.style.display = 'none';
+        }
+
+        // Navigation handler
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                navItems.forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+
+                const itemText = this.textContent.trim();
+                pageTitle.textContent = `${itemText} • RiskMGT`;
+
+                const target = this.getAttribute('data-target');
+
+                if (target === 'overview') {
+                    iframe.style.display = 'none';
+                    overviewContent.style.display = 'block';
+                    overviewHeader.style.display = 'flex';
+                } else {
+                    loadIframePage(target);
+                }
+            });
+        });
+
+        // Simulate shimmer loading
+        setTimeout(() => {
+            document.body.classList.remove('loading');
+        }, 3000);
+    </script>
+</body>
+</html>
