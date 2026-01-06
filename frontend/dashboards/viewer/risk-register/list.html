@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Register • RiskMGT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary: #5DA1A1;
+            --primary-hover: #4e9393;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --neutral: #6b7280;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #e8e8e8;
+            --shadow-sm: 0 3.2px 9.6px rgba(0,0,0,0.06);
+            --radius: 12.8px;
+            --transition: all 0.3s ease;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+
+        /* Top Nav */
+        .top-nav {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        .tabs-group { display: flex; align-items: center; gap: 8px; }
+        .nav-tab {
+            padding: 0 20px;
+            height: 40px;
+            background: rgba(93,161,161,0.08);
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .nav-tab.active {
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            border-bottom: 3px solid var(--primary);
+        }
+        .nav-tab:hover:not(.active) { background: rgba(93,161,161,0.15); }
+        .nav-tab .favicon {
+            width: 16px; height: 16px; background: var(--primary); border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; color: white; font-size: 10px;
+        }
+        .actions-group { display: flex; align-items: center; gap: 19.2px; }
+        .search-box input {
+            padding: 8px 12.8px; border: 1px solid var(--border); border-radius: 9.6px;
+            width: 320px; font-size: 12px; background: #f9f9f9;
+        }
+
+        /* Main */
+        .main { position: fixed; top: 64px; left: 0; right: 0; bottom: 0; overflow: hidden; }
+        .content-wrapper { width: 100%; height: 100%; overflow: hidden; }
+
+        /* Table View */
+        .table-view { display: block; height: 100%; }
+        .table-container {
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow: auto;
+        }
+        .table-container::-webkit-scrollbar { height: 8px; width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: rgba(93,161,161,0.05); border-radius: 4px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        table { min-width: 3200px; width: 100%; border-collapse: collapse; }
+        thead { position: sticky; top: 0; background: var(--card-bg); z-index: 8; }
+        th { padding: 12.8px 16px; font-size: 11.2px; font-weight: 600; color: var(--text-secondary);
+            border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+        td { padding: 12.8px 16px; font-size: 12.8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        tbody tr:hover { background: rgba(93,161,161,0.03); }
+
+        /* Mobile Cards */
+        .card-view { display: none; padding: 16px; overflow-y: auto; height: 100%; }
+        .risk-card {
+            background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm);
+        }
+        .risk-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .risk-card-title { font-size: 16px; font-weight: 600; }
+        .risk-card-grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; font-size: 13px; }
+        .risk-card-label { color: var(--text-secondary); font-weight: 500; }
+        .risk-card-value { word-break: break-word; }
+
+        /* Shared */
+        .pill { padding: 4px 9.6px; border-radius: 999px; font-size: 10.4px; font-weight: 600; }
+        .pill-downside { background: rgba(239,68,68,0.1); color: var(--red); }
+        .pill-upside { background: rgba(16,185,129,0.1); color: var(--green); }
+        .status-open { background: rgba(93,161,161,0.1); color: var(--primary); }
+        .icon-btn {
+            width: 32px; height: 32px; border-radius: 8px; background: transparent; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+        }
+        .icon-btn:hover { background: rgba(93,161,161,0.1); color: var(--primary); }
+
+        .arrow-wrapper { position: relative; display: inline-block; cursor: help; }
+        .arrow { display: block; width: 0; height: 0; }
+        .arrow-high { border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--red); }
+        .arrow-medium { border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--amber); }
+        .arrow-low { border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid var(--green); }
+        .tooltip {
+            visibility: hidden; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;
+            white-space: nowrap; opacity: 0; transition: opacity 0.2s; z-index: 10;
+        }
+        .tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid #333;
+        }
+        .arrow-wrapper:hover .tooltip { visibility: visible; opacity: 1; }
+
+        /* Side Panel */
+        .side-panel {
+            position: fixed; right: 0; top: 64px; bottom: 0; width: 480px; background: var(--card-bg);
+            box-shadow: -9.6px 0 38.4px rgba(0,0,0,0.12); z-index: 20; transform: translateX(100%);
+            transition: transform 0.35s ease;
+        }
+        .side-panel.open { transform: translateX(0); }
+        .panel-header { padding: 25.6px 32px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .panel-title { font-size: 18px; font-weight: 600; }
+        .close-panel { width: 36px; height: 36px; border-radius: 9.6px; background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .close-panel:hover { background: rgba(239,68,68,0.08); color: var(--red); }
+        .tab-nav { display: flex; border-bottom: 1px solid var(--border); }
+        .tab { padding: 12.8px 24px; font-size: 13.6px; font-weight: 500; cursor: pointer; color: var(--text-secondary); }
+        .tab.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .tab-content { padding: 32px; overflow-y: auto; height: calc(100% - 130px); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .search-box input { width: 100%; }
+            .table-view { display: none; }
+            .card-view { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="tabs-group">
+            <div class="nav-tab active" data-page="list">
+                <div class="favicon">L</div>
+                <span>List</span>
+            </div>
+            <div class="nav-tab" data-page="view.html">
+                <div class="favicon">V</div>
+                <span>View</span>
+            </div>
+        </div>
+        <div class="actions-group">
+            <div class="search-box">
+                <input type="text" placeholder="Search risks...">
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <div class="content-wrapper" id="contentWrapper">
+            <div class="table-view">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Risk ID</th>
+                                <th>Risk Type</th>
+                                <th>Bowtie</th>
+                                <th>Title</th>
+                                <th>Causes</th>
+                                <th>Event</th>
+                                <th>Consequences</th>
+                                <th>Status</th>
+                                <th>Risk Owner</th>
+                                <th>Sub Project</th>
+                                <th>Next Review Date</th>
+                                <th>Risk Exposure Start Date</th>
+                                <th>Risk Exposure End Date</th>
+                                <th>Total Risk Occurent</th>
+                                <th>Audit Trail</th>
+                                <th>Threshold Changing</th>
+                                <th>Project Ram Current</th>
+                                <th>Project Ram Target</th>
+                                <th>Risk Visual Ram Current</th>
+                                <th>Risk Visual Target</th>
+                                <th>HSSE RAM Current</th>
+                                <th>HSSE RAM Target</th>
+                                <th>Manageability</th>
+                                <th>Functional Area - TECOP</th>
+                                <th>Linked Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>RISK-001</td>
+                                <td><span class="pill pill-downside">Downside</span></td>
+                                <td><button class="icon-btn" onclick="window.location.href='bowtie.html'"><i class="fas fa-project-diagram"></i></button></td>
+                                <td>Cyber Security Breach</td>
+                                <td>Weak access controls</td>
+                                <td>Data exfiltration</td>
+                                <td>Financial loss, reputation damage</td>
+                                <td><span class="pill status-open">Open</span></td>
+                                <td>Alex Chen</td>
+                                <td>Digital Transformation</td>
+                                <td>2026-03-15</td>
+                                <td>2025-01-01</td>
+                                <td>2026-12-31</td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></td>
+                                <td>3 updates</td>
+                                <td>No</td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></td>
+                                <td>Can Influence</td>
+                                <td>Technical</td>
+                                <td>ACTION-101, ACTION-102</td>
+                            </tr>
+                            <tr>
+                                <td>RISK-002</td>
+                                <td><span class="pill pill-upside">Upside</span></td>
+                                <td><button class="icon-btn" onclick="window.location.href='bowtie.html'"><i class="fas fa-project-diagram"></i></button></td>
+                                <td>Market Expansion Opportunity</td>
+                                <td>New market entry</td>
+                                <td>Increased revenue</td>
+                                <td>Higher market share</td>
+                                <td><span class="pill status-open">Open</span></td>
+                                <td>Maria Garcia</td>
+                                <td>International Growth</td>
+                                <td>2026-06-01</td>
+                                <td>2025-07-01</td>
+                                <td>2027-06-30</td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td>1 update</td>
+                                <td>Yes</td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></td>
+                                <td><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></td>
+                                <td>Can Control</td>
+                                <td>Commercial</td>
+                                <td>ACTION-201</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="card-view">
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <div class="risk-card-title">RISK-001: Cyber Security Breach</div>
+                    </div>
+                    <div class="risk-card-grid">
+                        <div class="risk-card-label">Risk Type</div>
+                        <div class="risk-card-value"><span class="pill pill-downside">Downside</span></div>
+                        <div class="risk-card-label">Bowtie</div>
+                        <div class="risk-card-value"><button class="icon-btn" onclick="window.location.href='Bowtie.html'"><i class="fas fa-project-diagram"></i></button></div>
+                        <div class="risk-card-label">Title</div>
+                        <div class="risk-card-value">Cyber Security Breach</div>
+                        <div class="risk-card-label">Causes</div>
+                        <div class="risk-card-value">Weak access controls</div>
+                        <div class="risk-card-label">Event</div>
+                        <div class="risk-card-value">Data exfiltration</div>
+                        <div class="risk-card-label">Consequences</div>
+                        <div class="risk-card-value">Financial loss, reputation damage</div>
+                        <div class="risk-card-label">Status</div>
+                        <div class="risk-card-value"><span class="pill status-open">Open</span></div>
+                        <div class="risk-card-label">Risk Owner</div>
+                        <div class="risk-card-value">Alex Chen</div>
+                        <div class="risk-card-label">Sub Project</div>
+                        <div class="risk-card-value">Digital Transformation</div>
+                        <div class="risk-card-label">Next Review Date</div>
+                        <div class="risk-card-value">2026-03-15</div>
+                        <div class="risk-card-label">Exposure Start Date</div>
+                        <div class="risk-card-value">2025-01-01</div>
+                        <div class="risk-card-label">Exposure End Date</div>
+                        <div class="risk-card-value">2026-12-31</div>
+                        <div class="risk-card-label">Total Risk Occurent</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></div>
+                        <div class="risk-card-label">Audit Trail</div>
+                        <div class="risk-card-value">3 updates</div>
+                        <div class="risk-card-label">Threshold Changing</div>
+                        <div class="risk-card-value">No</div>
+                        <div class="risk-card-label">Project Ram Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></div>
+                        <div class="risk-card-label">Project Ram Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">Risk Visual Ram Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></div>
+                        <div class="risk-card-label">Risk Visual Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">HSSE RAM Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">HSSE RAM Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></div>
+                        <div class="risk-card-label">Manageability</div>
+                        <div class="risk-card-value">Can Influence</div>
+                        <div class="risk-card-label">Functional Area - TECOP</div>
+                        <div class="risk-card-value">Technical</div>
+                        <div class="risk-card-label">Linked Actions</div>
+                        <div class="risk-card-value">ACTION-101, ACTION-102</div>
+                    </div>
+                </div>
+
+                <div class="risk-card">
+                    <div class="risk-card-header">
+                        <div class="risk-card-title">RISK-002: Market Expansion Opportunity</div>
+                    </div>
+                    <div class="risk-card-grid">
+                        <div class="risk-card-label">Risk Type</div>
+                        <div class="risk-card-value"><span class="pill pill-upside">Upside</span></div>
+                        <div class="risk-card-label">Bowtie</div>
+                        <div class="risk-card-value"><button class="icon-btn" onclick="window.location.href='Bowtie.html'"><i class="fas fa-project-diagram"></i></button></div>
+                        <div class="risk-card-label">Title</div>
+                        <div class="risk-card-value">Market Expansion Opportunity</div>
+                        <div class="risk-card-label">Causes</div>
+                        <div class="risk-card-value">New market entry</div>
+                        <div class="risk-card-label">Event</div>
+                        <div class="risk-card-value">Increased revenue</div>
+                        <div class="risk-card-label">Consequences</div>
+                        <div class="risk-card-value">Higher market share</div>
+                        <div class="risk-card-label">Status</div>
+                        <div class="risk-card-value"><span class="pill status-open">Open</span></div>
+                        <div class="risk-card-label">Risk Owner</div>
+                        <div class="risk-card-value">Maria Garcia</div>
+                        <div class="risk-card-label">Sub Project</div>
+                        <div class="risk-card-value">International Growth</div>
+                        <div class="risk-card-label">Next Review Date</div>
+                        <div class="risk-card-value">2026-06-01</div>
+                        <div class="risk-card-label">Exposure Start Date</div>
+                        <div class="risk-card-value">2025-07-01</div>
+                        <div class="risk-card-label">Exposure End Date</div>
+                        <div class="risk-card-value">2027-06-30</div>
+                        <div class="risk-card-label">Total Risk Occurent</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">Audit Trail</div>
+                        <div class="risk-card-value">1 update</div>
+                        <div class="risk-card-label">Threshold Changing</div>
+                        <div class="risk-card-value">Yes</div>
+                        <div class="risk-card-label">Project Ram Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">Project Ram Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-high"></div><div class="tooltip">High</div></div></div>
+                        <div class="risk-card-label">Risk Visual Ram Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></div>
+                        <div class="risk-card-label">Risk Visual Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-medium"></div><div class="tooltip">Medium</div></div></div>
+                        <div class="risk-card-label">HSSE RAM Current</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></div>
+                        <div class="risk-card-label">HSSE RAM Target</div>
+                        <div class="risk-card-value"><div class="arrow-wrapper"><div class="arrow arrow-low"></div><div class="tooltip">Low</div></div></div>
+                        <div class="risk-card-label">Manageability</div>
+                        <div class="risk-card-value">Can Control</div>
+                        <div class="risk-card-label">Functional Area - TECOP</div>
+                        <div class="risk-card-value">Commercial</div>
+                        <div class="risk-card-label">Linked Actions</div>
+                        <div class="risk-card-value">ACTION-201</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Side Panel -->
+    <aside class="side-panel" id="sidePanel">
+        <div class="panel-header">
+            <h2 class="panel-title">RISK-001: Cyber Security Breach</h2>
+            <button class="close-panel" id="closePanel"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="tab-nav">
+            <div class="tab active">Progress</div>
+            <div class="tab">Comment</div>
+            <div class="tab">Information</div>
+            <div class="tab">History</div>
+        </div>
+        <div class="tab-content">
+            <h3>Risk Details</h3>
+            <p><strong>Risk Owner:</strong> Alex Chen</p>
+            <p><strong>Status:</strong> Open</p>
+            <p><strong>Next Review:</strong> 2026-03-15</p>
+            <h3 style="margin-top:32px;">Linked Actions</h3>
+            <div style="display:grid;gap:16px;">
+                <div style="padding:16px;border:1px solid var(--border);border-radius:var(--radius);">
+                    <strong>ACTION-101</strong> - Implement MFA<br>
+                    Owner: IT Security Team | Status: In Progress | Due: 2026-01-31
+                </div>
+                <div style="padding:16px;border:1px solid var(--border);border-radius:var(--radius);">
+                    <strong>ACTION-102</strong> - Conduct penetration testing<br>
+                    Owner: External Auditor | Status: Proposed | Due: 2026-03-31
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <script>
+        const contentWrapper = document.getElementById('contentWrapper');
+        const listContent = contentWrapper.innerHTML;
+
+        function bindEllipsisButtons() {
+            document.querySelectorAll('.icon-btn i.fa-ellipsis-v').forEach(icon => {
+                const btn = icon.parentElement;
+                if (btn) {
+                    btn.onclick = () => document.getElementById('sidePanel').classList.add('open');
+                }
+            });
+        }
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                const page = this.dataset.page;
+                if (page === 'list') {
+                    contentWrapper.innerHTML = listContent;
+                    bindEllipsisButtons();
+                } else {
+                    contentWrapper.innerHTML = `<iframe src="${page}" style="width:100%;height:100%;border:none;"></iframe>`;
+                }
+            });
+        });
+
+        bindEllipsisButtons();
+
+        document.getElementById('closePanel')?.addEventListener('click', () => {
+            document.getElementById('sidePanel').classList.remove('open');
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.onclick = () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            };
+        });
+    </script>
+</body>
+</html>
