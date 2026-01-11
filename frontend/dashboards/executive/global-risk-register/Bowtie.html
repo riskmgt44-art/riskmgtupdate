@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bowtie Diagram – Cyber Security Breach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+:root {
+    --primary: #5DA1A1;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #0f172a;
+    --muted: #64748b;
+    --shadow: 0 12px 32px rgba(0,0,0,.08);
+    --radius: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+/* HEADER */
+header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: 64px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    z-index: 20;
+    justify-content: space-between;
+}
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+.back-button:hover {
+    color: var(--primary);
+}
+header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+/* LAYOUT */
+main {
+    padding-top: 96px;
+    display: flex;
+    justify-content: center;
+}
+.diagram-wrapper {
+    width: 95%;
+    max-width: 1400px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 48px;
+}
+/* SVG */
+svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+}
+/* NODES */
+.node {
+    rx: 12;
+    ry: 12;
+    stroke-width: 1.5;
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+.threat,
+.consequence {
+    fill: #fee2e2;
+    stroke: var(--red);
+}
+.barrier.green {
+    fill: #d1fae5;
+    stroke: var(--green);
+}
+.barrier.amber {
+    fill: #fef3c7;
+    stroke: var(--amber);
+}
+.barrier.red {
+    fill: #fee2e2;
+    stroke: var(--red);
+}
+/* TEXT */
+.label {
+    font-size: 13px;
+    fill: var(--text);
+    font-weight: 600;
+}
+.sub {
+    font-size: 11px;
+    fill: var(--muted);
+}
+/* EFFECTIVENESS DOT */
+.dot {
+    r: 8;
+    stroke: white;
+    stroke-width: 3;
+}
+.dot.green { fill: var(--green); }
+.dot.amber { fill: var(--amber); }
+.dot.red { fill: var(--red); }
+/* LINES */
+path.link {
+    stroke: #cbd5e1;
+    stroke-width: 4;
+    fill: none;
+    marker-end: url(#arrow);
+}
+/* ARROW */
+marker#arrow path {
+    fill: #cbd5e1;
+}
+/* HOVER */
+g.node-group:hover .node {
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,.12));
+    transform: translateY(-6px);
+}
+</style>
+</head>
+<body>
+<header>
+    <div class="back-button" onclick="window.history.back()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Back to Risk</span>
+    </div>
+    <h1>Bowtie Diagram – RISK-001: Cyber Security Breach</h1>
+    <div></div>
+</header>
+<main>
+<div class="diagram-wrapper">
+<svg viewBox="0 0 1400 720" xmlns="http://www.w3.org/2000/svg">
+    <!-- Arrow Marker Definition -->
+    <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="8" markerHeight="8" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z"/>
+        </marker>
+    </defs>
+
+    <!-- LAYER 1: All lines (drawn first → behind everything) -->
+    <g id="lines">
+        <path class="link" d="M270 180 C 420 180, 520 330, 650 360"/>
+        <path class="link" d="M270 350 C 420 350, 520 350, 650 360"/>
+        <path class="link" d="M270 520 C 420 520, 520 390, 650 360"/>
+        <path class="link" d="M540 250 C 580 300, 620 330, 650 360"/>
+        <path class="link" d="M540 480 C 580 430, 620 390, 650 360"/>
+        <path class="link" d="M770 360 C 900 360, 1040 180, 1130 180"/>
+        <path class="link" d="M770 360 C 900 360, 1040 340, 1130 340"/>
+        <path class="link" d="M770 360 C 900 360, 1040 500, 1130 500"/>
+        <path class="link" d="M860 250 C 980 250, 1080 180, 1130 180"/>
+        <path class="link" d="M860 480 C 980 480, 1080 500, 1130 500"/>
+    </g>
+
+    <!-- LAYER 2: Nodes, dots and text (each in its own <g class="node-group"> for hover) -->
+
+    <!-- CENTRAL EVENT -->
+    <g class="node-group">
+        <rect class="node" x="650" y="310" width="120" height="100" fill="#0f172a" rx="12" ry="12"/>
+        <text x="710" y="350" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">DATA</text>
+        <text x="710" y="370" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">EXFILTRATION</text>
+    </g>
+
+    <!-- THREATS (Left) -->
+    <g class="node-group">
+        <rect class="node threat" x="80" y="140" width="190" height="80"/>
+        <text class="label" x="175" y="180" text-anchor="middle">Weak Access Control</text>
+    </g>
+    <g class="node-group">
+        <rect class="node threat" x="80" y="310" width="190" height="80"/>
+        <text class="label" x="175" y="350" text-anchor="middle">No MFA Enforcement</text>
+    </g>
+    <g class="node-group">
+        <rect class="node threat" x="80" y="480" width="190" height="80"/>
+        <text class="label" x="175" y="520" text-anchor="middle">Unpatched Systems</text>
+    </g>
+
+    <!-- PREVENTIVE BARRIERS -->
+    <g class="node-group">
+        <rect class="node barrier amber" x="350" y="200" width="190" height="100"/>
+        <circle class="dot amber" cx="520" cy="220"/>
+        <text class="label" x="445" y="240" text-anchor="middle">Implement MFA</text>
+        <text class="sub" x="445" y="262" text-anchor="middle">ACTION-101 · In Progress</text>
+    </g>
+    <g class="node-group">
+        <rect class="node barrier red" x="350" y="430" width="190" height="100"/>
+        <circle class="dot red" cx="520" cy="450"/>
+        <text class="label" x="445" y="470" text-anchor="middle">Penetration Testing</text>
+        <text class="sub" x="445" y="492" text-anchor="middle">ACTION-102 · Proposed</text>
+    </g>
+
+    <!-- RECOVERY BARRIERS -->
+    <g class="node-group">
+        <rect class="node barrier green" x="860" y="200" width="200" height="100"/>
+        <circle class="dot green" cx="1030" cy="220"/>
+        <text class="label" x="960" y="240" text-anchor="middle">Incident Response</text>
+        <text class="sub" x="960" y="262" text-anchor="middle">Containment & Recovery</text>
+    </g>
+    <g class="node-group">
+        <rect class="node barrier green" x="860" y="430" width="200" height="100"/>
+        <circle class="dot green" cx="1030" cy="450"/>
+        <text class="label" x="960" y="470" text-anchor="middle">PR Crisis Handling</text>
+        <text class="sub" x="960" y="492" text-anchor="middle">Stakeholder Comms</text>
+    </g>
+
+    <!-- CONSEQUENCES (Right) -->
+    <g class="node-group">
+        <rect class="node consequence" x="1130" y="140" width="200" height="80"/>
+        <text class="label" x="1230" y="180" text-anchor="middle">Financial Loss</text>
+    </g>
+    <g class="node-group">
+        <rect class="node consequence" x="1130" y="300" width="200" height="80"/>
+        <text class="label" x="1230" y="340" text-anchor="middle">Reputation Damage</text>
+    </g>
+    <g class="node-group">
+        <rect class="node consequence" x="1130" y="460" width="200" height="80"/>
+        <text class="label" x="1230" y="500" text-anchor="middle">Regulatory Penalties</text>
+    </g>
+
+</svg>
+</div>
+</main>
+</body>
+</html>

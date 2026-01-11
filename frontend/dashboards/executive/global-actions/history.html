@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History — ACTION-101: Implement Multi-Factor Authentication • RiskMGT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary: #5DA1A1;
+            --primary-hover: #4e9393;
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --neutral: #6b7280;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --border: #e8e8e8;
+            --shadow-sm: 0 3.2px 9.6px rgba(0,0,0,0.06);
+            --shadow-md: 0 9.6px 25.6px rgba(0,0,0,0.08);
+            --shadow-lg: 0 19.2px 38.4px rgba(0,0,0,0.12);
+            --radius: 12.8px;
+            --transition: all 0.3s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+        }
+        /* Hide scrollbars globally */
+        html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
+        html, body { -ms-overflow-style: none; scrollbar-width: none; }
+        .main {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .view-toggle {
+            padding: 20px 24px 0;
+            text-align: right;
+        }
+        .toggle-btn {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .toggle-btn:hover:not(.active) {
+            background: rgba(93,161,161,0.1);
+        }
+        .content-wrapper {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .view {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0 24px 32px;
+        }
+        .view::-webkit-scrollbar { display: none; }
+        .view { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Timeline View */
+        .timeline-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            padding-top: 20px;
+        }
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: var(--border);
+            transform: translateX(-50%);
+        }
+        .timeline-item {
+            position: relative;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+        }
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+        .timeline-content {
+            width: 45%;
+            background: var(--card-bg);
+            padding: 20px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .timeline-item:nth-child(odd) .timeline-content {
+            text-align: right;
+        }
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border: 4px solid var(--card-bg);
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            box-shadow: 0 0 0 4px var(--border);
+        }
+        .timeline-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .timeline-type {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--neutral);
+            margin-bottom: 8px;
+        }
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        .timeline-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 12.8px;
+            color: var(--text-secondary);
+        }
+        .timeline-item:nth-child(odd) .timeline-meta {
+            justify-content: flex-end;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .meta-item i {
+            color: var(--neutral);
+            width: 14px;
+            text-align: center;
+        }
+        /* Table View */
+        .table-container {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 8;
+        }
+        th {
+            text-align: left;
+            padding: 12.8px 16px;
+            font-size: 11.2px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody tr {
+            transition: var(--transition);
+        }
+        tbody tr:hover {
+            background: rgba(93,161,161,0.03);
+        }
+        td {
+            padding: 12.8px 16px;
+            font-size: 12.8px;
+            border-bottom: 1px solid var(--border);
+        }
+        td:last-child { border-bottom: none; }
+        /* Responsive */
+        @media (max-width: 992px) {
+            .timeline-container::before {
+                left: 30px;
+            }
+            .timeline-item {
+                flex-direction: row !important;
+                padding-left: 60px;
+            }
+            .timeline-content {
+                width: 100%;
+                text-align: left !important;
+            }
+            .timeline-dot {
+                left: 30px;
+                transform: none;
+            }
+            .timeline-meta {
+                justify-content: flex-start !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .view {
+                padding: 0 16px 24px;
+            }
+            .view-toggle {
+                padding: 16px 16px 0;
+            }
+            .table-container { overflow-x: auto; }
+            table { min-width: 1000px; }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <main class="main">
+        <div class="view-toggle">
+            <button class="toggle-btn active" data-view="timeline">Timeline View</button>
+            <button class="toggle-btn" data-view="table">Table View</button>
+        </div>
+        <div class="content-wrapper">
+            <!-- Timeline View -->
+            <div id="timeline-view" class="view">
+                <div class="timeline-container">
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-12-10 14:30</div>
+                            <div class="timeline-type">Comment</div>
+                            <div class="timeline-desc">Integration testing started. Progress update shared.</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> COMM-087</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-12-05 09:15</div>
+                            <div class="timeline-type">Comment</div>
+                            <div class="timeline-desc">"Looks good, approve the next phase."</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> Jane Smith</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> Project Lead</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> COMM-085</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-11-20 11:00</div>
+                            <div class="timeline-type">Status Change</div>
+                            <div class="timeline-desc">Status: Approved → In Progress</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-cogs"></i> Workflow</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> -</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-10-15 13:45</div>
+                            <div class="timeline-type">Field Update</div>
+                            <div class="timeline-desc">Planned Finish Date: 2025-12-31 → 2026-01-31</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> -</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-09-10 10:20</div>
+                            <div class="timeline-type">Comment</div>
+                            <div class="timeline-desc">"Budget approved for additional training sessions."</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> CTO Sarah Miller</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> Executive</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> COMM-062</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-07-01 08:00</div>
+                            <div class="timeline-type">Status Change</div>
+                            <div class="timeline-desc">Status: Proposed → Approved</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> CTO Sarah Miller</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> Executive</div>
+                                <div class="meta-item"><i class="fas fa-check-circle"></i> Approval</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> APPR-078</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-06-15 14:30</div>
+                            <div class="timeline-type">Field Update</div>
+                            <div class="timeline-desc">Cost of Action: $400,000 → $450,000</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> -</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-06-10 11:45</div>
+                            <div class="timeline-type">Action Linked</div>
+                            <div class="timeline-desc">Linked to RISK-001 and RISK-005</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> RISK-001, RISK-005</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-06-01 09:00</div>
+                            <div class="timeline-type">Field Update</div>
+                            <div class="timeline-desc">Action Owner: System → IT Security Team</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> System</div>
+                                <div class="meta-item"><i class="fas fa-robot"></i> Automated</div>
+                                <div class="meta-item"><i class="fas fa-cogs"></i> Workflow</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> -</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-05-20 15:20</div>
+                            <div class="timeline-type">Status Change</div>
+                            <div class="timeline-desc">Status: Draft → Proposed</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> John Doe</div>
+                                <div class="meta-item"><i class="fas fa-briefcase"></i> IT Security Team</div>
+                                <div class="meta-item"><i class="fas fa-mouse-pointer"></i> Manual</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> -</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-content">
+                            <div class="timeline-date">2025-05-15 10:00</div>
+                            <div class="timeline-type">Action Created</div>
+                            <div class="timeline-desc">Initial action record created in the system</div>
+                            <div class="timeline-meta">
+                                <div class="meta-item"><i class="fas fa-user"></i> System</div>
+                                <div class="meta-item"><i class="fas fa-robot"></i> Automated</div>
+                                <div class="meta-item"><i class="fas fa-cogs"></i> System</div>
+                                <div class="meta-item"><i class="fas fa-link"></i> SYS-042</div>
+                            </div>
+                        </div>
+                        <div class="timeline-dot"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Table View -->
+            <div id="table-view" class="view hidden">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date / Time</th>
+                                <th>Event Type</th>
+                                <th>Description</th>
+                                <th>Changed By</th>
+                                <th>Role</th>
+                                <th>Source</th>
+                                <th>Reference</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-12-10 14:30</td>
+                                <td>Comment</td>
+                                <td>Integration testing started. Progress update shared.</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Manual</td>
+                                <td>COMM-087</td>
+                            </tr>
+                            <tr>
+                                <td>2025-12-05 09:15</td>
+                                <td>Comment</td>
+                                <td>"Looks good, approve the next phase."</td>
+                                <td>Jane Smith</td>
+                                <td>Project Lead</td>
+                                <td>Manual</td>
+                                <td>COMM-085</td>
+                            </tr>
+                            <tr>
+                                <td>2025-11-20 11:00</td>
+                                <td>Status Change</td>
+                                <td>Status: Approved → In Progress</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Workflow</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2025-10-15 13:45</td>
+                                <td>Field Update</td>
+                                <td>Planned Finish Date: 2025-12-31 → 2026-01-31</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Manual</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2025-09-10 10:20</td>
+                                <td>Comment</td>
+                                <td>"Budget approved for additional training sessions."</td>
+                                <td>CTO Sarah Miller</td>
+                                <td>Executive</td>
+                                <td>Manual</td>
+                                <td>COMM-062</td>
+                            </tr>
+                            <tr>
+                                <td>2025-07-01 08:00</td>
+                                <td>Status Change</td>
+                                <td>Status: Proposed → Approved</td>
+                                <td>CTO Sarah Miller</td>
+                                <td>Executive</td>
+                                <td>Approval</td>
+                                <td>APPR-078</td>
+                            </tr>
+                            <tr>
+                                <td>2025-06-15 14:30</td>
+                                <td>Field Update</td>
+                                <td>Cost of Action: $400,000 → $450,000</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Manual</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2025-06-10 11:45</td>
+                                <td>Action Linked</td>
+                                <td>Linked to RISK-001 and RISK-005</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Manual</td>
+                                <td>RISK-001, RISK-005</td>
+                            </tr>
+                            <tr>
+                                <td>2025-06-01 09:00</td>
+                                <td>Field Update</td>
+                                <td>Action Owner: System → IT Security Team</td>
+                                <td>System</td>
+                                <td>Automated</td>
+                                <td>Workflow</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2025-05-20 15:20</td>
+                                <td>Status Change</td>
+                                <td>Status: Draft → Proposed</td>
+                                <td>John Doe</td>
+                                <td>IT Security Team</td>
+                                <td>Manual</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>2025-05-15 10:00</td>
+                                <td>Action Created</td>
+                                <td>Initial action record created in the system</td>
+                                <td>System</td>
+                                <td>Automated</td>
+                                <td>System</td>
+                                <td>SYS-042</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const view = btn.dataset.view;
+                document.getElementById('timeline-view').classList.toggle('hidden', view !== 'timeline');
+                document.getElementById('table-view').classList.toggle('hidden', view !== 'table');
+            });
+        });
+    </script>
+</body>
+</html>
